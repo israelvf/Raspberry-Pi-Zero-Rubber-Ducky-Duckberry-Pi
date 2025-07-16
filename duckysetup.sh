@@ -4,6 +4,7 @@ if [ $EUID -ne 0 ]; then
 	echo "sudo $0 $@"
 	exit
 fi
+
 apt-get update
 apt-get upgrade -y
 apt-get install rpi-update
@@ -13,13 +14,13 @@ BRANCH=next rpi-update c053625
 sed -i -e "\$adtoverlay=dwc2" /boot/config.txt
 
 ##Install git and download rspiducky
-wget --no-check-certificate https://raw.githubusercontent.com/ossiozac/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/master/LICENSE https://raw.githubusercontent.com/ossiozac/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/master/duckpi.sh https://github.com/ossiozac/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/g_hid.ko https://github.com/ossiozac/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/hid-gadget-test https://github.com/ossiozac/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/hid-gadget-test.c https://github.com/ossiozac/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/readme.md https://github.com/ossiozac/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/usleep https://github.com/ossiozac/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/usleep.c
+wget --no-check-certificate https://raw.githubusercontent.com/israelvf/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/master/LICENSE https://raw.githubusercontent.com/israelvf/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/master/duckpi.sh https://github.com/israelvf/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/g_hid.ko https://github.com/israelvf/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/hid-gadget-test https://github.com/israelvf/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/hid-gadget-test.c https://github.com/israelvf/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/readme.md https://github.com/israelvf/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/usleep https://github.com/israelvf/Raspberry-Pi-Zero-Rubber-Ducky-Duckberry-Pi/raw/master/usleep.c
 
 ##Make all nessisary files executeable
-cd /home/pi
+cd $(eval echo ~$1)
 chmod 755 hid-gadget-test.c duckpi.sh usleep.c g_hid.ko usleep hid-gadget-test
 
-\cp g_hid.ko /lib/modules/4.4.0+/kernel/drivers/usb/gadget/legacy
+cp -r g_hid.ko /lib/modules/*/kernel/drivers/usb/gadget/legacy
 
 cat <<'EOF'>>/etc/modules
 dwc2
@@ -31,11 +32,11 @@ sed -i '/exit/d' /etc/rc.local
 
 cat <<'EOF'>>/etc/rc.local
 sleep 3
-cat /boot/payload.dd > /home/pi/payload.dd
+cat /boot/payload.dd > $(eval echo ~$1)/payload.dd
 sleep 1
-tr -d '\r' < /home/pi/payload.dd > /home/pi/payload2.dd
+tr -d '\r' < $(eval echo ~$1)/payload.dd > $(eval echo ~$1)/payload2.dd
 sleep 1
-/home/pi/duckpi.sh /home/pi/payload2.dd
+$(eval echo ~$1)/duckpi.sh $(eval echo ~$1)/payload2.dd $(eval echo ~$1)
 exit 0
 EOF
 
